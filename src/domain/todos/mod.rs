@@ -1,5 +1,6 @@
 pub mod model;
 pub mod queries;
+pub mod commands;
 pub mod resolver;
 
 pub(self) use self::model::store:: {
@@ -13,5 +14,6 @@ pub use self::{
 };
 
 pub use self::{
-    queries::*
+    queries::*,
+    commands::*
 };
