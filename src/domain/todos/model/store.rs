@@ -1,4 +1,4 @@
-use crate::domain::todos::model::{Todo, TodoData};
+use crate::domain::todos::{Todo, TodoData};
 use auto_impl::auto_impl;
 use std::{
     collections::{hash_map::Entry, HashMap},
