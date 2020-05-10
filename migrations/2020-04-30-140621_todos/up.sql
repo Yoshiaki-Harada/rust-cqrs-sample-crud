@@ -1,6 +1,8 @@
 -- Your SQL goes here
-CREATE TABLE todo(
-    id INT PRIMARY KEY,
-    title VARCHAR NOT NULL,
-
-)
+CREATE TABLE todo
+(
+    id int PRIMARY KEY,
+    title varchar NOT NULL ,
+    description varchar NOT NULL ,
+    done boolean NOT NULL
+);

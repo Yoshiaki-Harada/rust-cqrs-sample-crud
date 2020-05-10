@@ -1,7 +1,19 @@
 pub mod store;
 
-#[derive(Clone)]
+use diesel::{Queryable, Insertable};
+use crate::schema::todo;
+
+#[derive(Clone, Queryable)]
 pub struct TodoData {
+    pub id: i32,
+    pub title: String,
+    pub description: String,
+    pub done: bool,
+}
+
+#[derive(Insertable)]
+#[table_name = "todo"]
+pub struct NewTodo {
     pub id: i32,
     pub title: String,
     pub description: String,
@@ -22,8 +34,13 @@ impl Todo {
         &self.data
     }
     // read only, move ownership
-    pub fn into_data(self) -> TodoData {
-        self.data
+    pub fn into_data(self) -> NewTodo {
+        NewTodo {
+            id: self.data.id,
+            title: self.data.title,
+            description: self.data.description,
+            done: self.data.done,
+        }
     }
 
     pub fn new(id: i32, title: String, description: String, done: bool) -> Self {
