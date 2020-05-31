@@ -4,9 +4,6 @@ use crate::domain::todos::Todo;
 use serde::Deserialize;
 use auto_impl::auto_impl;
 use crate::domain::todos::model::store::PostgresDb;
-use diesel::PgConnection;
-use rocket_contrib::databases::r2d2::PooledConnection;
-use diesel::r2d2::ConnectionManager;
 
 #[derive(Deserialize)]
 pub struct GetTodo {
@@ -16,10 +13,6 @@ pub struct GetTodo {
 #[auto_impl(Fn)]
 pub trait GetTodoQuery {
     fn get_todo(&self, query: GetTodo) -> Todo;
-}
-
-pub struct Postgres {
-    pool: PostgresDb
 }
 
 pub(in crate::domain) fn get_todo_query(store: impl TodoStore, pool: PostgresDb) -> impl GetTodoQuery {

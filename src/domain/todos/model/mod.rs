@@ -34,13 +34,16 @@ impl Todo {
         &self.data
     }
     // read only, move ownership
-    pub fn into_data(self) -> NewTodo {
+    pub fn new_data(self) -> NewTodo {
         NewTodo {
             id: self.data.id,
             title: self.data.title,
             description: self.data.description,
             done: self.data.done,
         }
+    }
+    pub fn into_data(self) -> TodoData {
+        self.data
     }
 
     pub fn new(id: i32, title: String, description: String, done: bool) -> Self {

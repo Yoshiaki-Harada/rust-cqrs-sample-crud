@@ -6,15 +6,14 @@ use diesel::pg::PgConnection;
 use std::{collections::{hash_map::Entry, HashMap}, sync::RwLock, vec::IntoIter, env};
 use crate::schema;
 use diesel::prelude::*;
-use std::borrow::Borrow;
-use std::error::Error;
 use diesel::insert_into;
 use dotenv::dotenv;
 
 // connectionを受け取る
-#[auto_impl(&)]
+#[auto_impl(&, Arc)]
 pub(in crate::domain) trait TodoStore {
     fn get_todo(&self, id: i32, conn: &PgConnection) -> Todo;
+    fn get_todo_by_title(&self, title: &str, conn: &PgConnection) -> Vec<Todo>;
     fn set_todo(&self, todo: Todo, conn: &PgConnection);
 }
 
@@ -27,25 +26,11 @@ pub(in crate::domain) trait TodoStoreFilter {
 
 pub(in crate::domain) type Iter = IntoIter<TodoData>;
 
-
-// impl TodoStoreFilter for PostgresDb {
-//     fn Filter<F>(&self, predicate: F) -> Iter
-//         where
-//             F: Fn(&TodoData) -> bool,
-//     {
-//         let todos: Vec<_> = self
-//             .read()
-//             .unwrap()
-//             .values()
-//             .filter(|p| predicate(*p))
-//             .cloned()
-//             .collect();
-//         todos.into_iter()
-//     }
-// }
-//
-
 pub struct TodoDb {}
+
+pub(in crate::domain::todos) fn init_todo_store() -> TodoDb {
+    TodoDb {}
+}
 
 impl TodoStore for TodoDb {
     fn get_todo(&self, todoId: i32, conn: &PgConnection) -> Todo {
@@ -54,9 +39,15 @@ impl TodoStore for TodoDb {
         Todo::from_data(result.unwrap())
     }
 
+    fn get_todo_by_title(&self, todoTitle: &str, conn: &PgConnection) -> Vec<Todo> {
+        use crate::schema::todo::dsl::*;
+        let result = todo.filter(title.eq(todoTitle)).load::<TodoData>(conn);
+        result.unwrap().into_iter().map(|data| Todo::from_data(data)).rev().collect()
+    }
+
     fn set_todo(&self, new_todo: Todo, conn: &PgConnection) {
         use crate::schema::todo::dsl::*;
-        let data = new_todo.into_data();
+        let data = new_todo.new_data();
         insert_into(todo).values(&data).get_result::<TodoData>(conn).expect("error");
     }
 }
